@@ -31,6 +31,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth ->
                         auth
                                 .requestMatchers("/api/public/**").permitAll()
+                                .requestMatchers("/api/web/checkIpv6Support").permitAll()
                                 .requestMatchers("/actuator/health").permitAll()
                                 .anyRequest().authenticated()
                 )
