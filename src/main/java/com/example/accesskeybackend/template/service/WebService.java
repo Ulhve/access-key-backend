@@ -5,21 +5,21 @@ import org.springframework.stereotype.Service;
 
 import java.net.Inet6Address;
 import java.net.InetAddress;
+import java.util.Arrays;
+import java.util.Objects;
 
 @Service
 @Log4j2
 public class WebService {
 
     public Boolean isIPv6(final String siteUrl){
-        Boolean isIPv6 = false;
+        Boolean isIPv6;
         String domainName = takeDomainName(siteUrl);
         try {
             InetAddress[] addresses = InetAddress.getAllByName(domainName);
-            for(InetAddress address : addresses){
-                if (isIPv6(address)){
-                    isIPv6 = true;
-                }
-            }
+            isIPv6 = Arrays.stream(addresses)
+                    .filter(address->isIPv6(address))
+                    .anyMatch(Objects::nonNull);
         } catch (final java.net.UnknownHostException ignored) {
             throw new com.example.accesskeybackend.exception.IllegalArgumentException(String.format(
                     "Bad siteUrl: %s", siteUrl)
@@ -30,17 +30,10 @@ public class WebService {
     }
 
     private String takeDomainName(final String path){
-        String domainName =  path.replaceAll("http(s)?://|www\\.|/.*", "");
-        return domainName;
+        return path.replaceAll("http(s)?://|www\\.|/.*", "");
     }
 
     private boolean isIPv6(InetAddress inetAddress) {
-        boolean isIPv6 = false;
-
-        if (inetAddress != null) {
-            isIPv6 = (inetAddress instanceof Inet6Address);
-        }
-
-        return isIPv6;
+        return (inetAddress != null) && (inetAddress instanceof Inet6Address);
     }
 }
